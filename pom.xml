@@ -1,0 +1,365 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>us.springett</groupId>
+        <artifactId>alpine-parent</artifactId>
+        <version>2.0.1-SNAPSHOT</version>
+    </parent>
+
+    <groupId>org.dependencytrack</groupId>
+    <artifactId>dependency-track-analyzer</artifactId>
+    <packaging>war</packaging>
+    <version>1.0-SNAPSHOT</version>
+
+    <properties>
+        <!-- Dependency Versions -->
+        <frontend.version>4.5.0</frontend.version>
+        <lib.alpine.version>${project.parent.version}</lib.alpine.version>
+        <lib.cpe-parser.version>2.0.2</lib.cpe-parser.version>
+        <lib.cvss-calculator.version>1.4.1</lib.cvss-calculator.version>
+        <lib.cyclonedx-java.version>7.2.0</lib.cyclonedx-java.version>
+        <lib.jaxb.runtime.version>2.3.6</lib.jaxb.runtime.version>
+        <lib.lucene.version>8.11.2</lib.lucene.version>
+        <lib.packageurl.version>1.4.1</lib.packageurl.version>
+        <lib.pebble.version>3.1.5</lib.pebble.version>
+        <lib.unirest.version>3.13.11</lib.unirest.version>
+        <lib.vulndb-data-mirror.version>1.0.1</lib.vulndb-data-mirror.version>
+        <!-- JDBC Drivers -->
+        <lib.jdbc-driver.mssql.version>11.2.1.jre11</lib.jdbc-driver.mssql.version>
+        <lib.jdbc-driver.mysql.version>8.0.30</lib.jdbc-driver.mysql.version>
+        <lib.jdbc-driver.postgresql.version>42.5.0</lib.jdbc-driver.postgresql.version>
+        <!-- Maven Plugin Properties -->
+        <plugin.cyclonedx.projectType>application</plugin.cyclonedx.projectType>
+        <plugin.retirejs.breakOnFailure>false</plugin.retirejs.breakOnFailure>
+        <!-- SonarCloud properties -->
+        <sonar.exclusions>src/main/webapp/**</sonar.exclusions>
+
+    </properties>
+
+    <repositories>
+        <repository>
+            <id>ossrh-snapshot</id>
+            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+            <snapshots>
+                <updatePolicy>always</updatePolicy>
+                <enabled>true</enabled>
+            </snapshots>
+        </repository>
+    </repositories>
+
+    <dependencies>
+        <!-- Alpine -->
+        <dependency>
+            <groupId>us.springett</groupId>
+            <artifactId>alpine-common</artifactId>
+            <version>${lib.alpine.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>us.springett</groupId>
+            <artifactId>alpine-model</artifactId>
+            <version>${lib.alpine.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>us.springett</groupId>
+            <artifactId>alpine-infra</artifactId>
+            <version>${lib.alpine.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>us.springett</groupId>
+            <artifactId>alpine-server</artifactId>
+            <version>${lib.alpine.version}</version>
+        </dependency>
+        <!-- CVSS Calculator -->
+        <dependency>
+            <groupId>us.springett</groupId>
+            <artifactId>cvss-calculator</artifactId>
+            <version>${lib.cvss-calculator.version}</version>
+        </dependency>
+        <!-- CPE Parser -->
+        <dependency>
+            <groupId>us.springett</groupId>
+            <artifactId>cpe-parser</artifactId>
+            <version>${lib.cpe-parser.version}</version>
+        </dependency>
+        <!-- CycloneDX -->
+        <dependency>
+            <groupId>org.cyclonedx</groupId>
+            <artifactId>cyclonedx-core-java</artifactId>
+            <version>${lib.cyclonedx-java.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.glassfish.jaxb</groupId>
+            <artifactId>jaxb-runtime</artifactId>
+            <version>${lib.jaxb.runtime.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>javax.activation</groupId>
+            <artifactId>javax.activation-api</artifactId>
+            <version>1.2.0</version>
+        </dependency>
+        <!-- org.json
+        This was previously transitively included with Unirest. However, Unirest v3.x removed reliance on org.json
+        in favor of their own API compatible replacement. Therefore, it was necessary to directly include org.json.
+        Removal of org.json is documented in https://github.com/DependencyTrack/dependency-track/issues/1113 -->
+        <dependency>
+            <groupId>org.json</groupId>
+            <artifactId>json</artifactId>
+            <version>20220320</version>
+        </dependency>
+        <!-- Package URL -->
+        <dependency>
+            <groupId>com.github.package-url</groupId>
+            <artifactId>packageurl-java</artifactId>
+            <version>${lib.packageurl.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.lucene</groupId>
+            <artifactId>lucene-core</artifactId>
+            <version>${lib.lucene.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.lucene</groupId>
+            <artifactId>lucene-analyzers-common</artifactId>
+            <version>${lib.lucene.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.lucene</groupId>
+            <artifactId>lucene-queryparser</artifactId>
+            <version>${lib.lucene.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.lucene</groupId>
+            <artifactId>lucene-queries</artifactId>
+            <version>${lib.lucene.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.lucene</groupId>
+            <artifactId>lucene-sandbox</artifactId>
+            <version>${lib.lucene.version}</version>
+        </dependency>
+        <!-- Pebble templating engine -->
+        <dependency>
+            <groupId>io.pebbletemplates</groupId>
+            <artifactId>pebble</artifactId>
+            <version>${lib.pebble.version}</version>
+        </dependency>
+        <!-- VulnDB data mirroring and parsing -->
+        <dependency>
+            <groupId>us.springett</groupId>
+            <artifactId>vulndb-data-mirror</artifactId>
+            <version>${lib.vulndb-data-mirror.version}</version>
+            <!-- Exclude transitive version so Dependency-Track can manage independently -->
+            <exclusions>
+                <exclusion>
+                    <groupId>io.github.openunirest</groupId>
+                    <artifactId>open-unirest-java</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <!-- Unirest -->
+        <dependency>
+            <groupId>com.konghq</groupId>
+            <artifactId>unirest-java</artifactId>
+            <version>${lib.unirest.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.woodstox</groupId>
+            <artifactId>woodstox-core</artifactId>
+            <version>6.3.1</version>
+        </dependency>
+        <!-- Package version parsing -->
+        <dependency>
+            <groupId>org.apache.maven</groupId>
+            <artifactId>maven-artifact</artifactId>
+            <version>3.8.6</version>
+        </dependency>
+        <!-- Bundle JDBC drivers -->
+        <dependency>
+            <groupId>com.microsoft.sqlserver</groupId>
+            <artifactId>mssql-jdbc</artifactId>
+            <version>${lib.jdbc-driver.mssql.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+            <version>${lib.jdbc-driver.mysql.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <version>${lib.jdbc-driver.postgresql.version}</version>
+        </dependency>
+        <!-- Xerces -->
+        <dependency>
+            <groupId>xerces</groupId>
+            <artifactId>xercesImpl</artifactId>
+            <version>2.12.2</version>
+        </dependency>
+        <!-- Commons Compress -->
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-compress</artifactId>
+            <version>1.21</version>
+        </dependency>
+        <!-- Test Dependencies -->
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>${lib.junit.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.glassfish.jersey.test-framework.providers</groupId>
+            <artifactId>jersey-test-framework-provider-grizzly2</artifactId>
+            <version>${lib.jersey.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.glassfish.jersey.connectors</groupId>
+            <artifactId>jersey-grizzly-connector</artifactId>
+            <version>${lib.jersey.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+            <version>${lib.mockito.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.github.stefanbirkner</groupId>
+            <artifactId>system-rules</artifactId>
+            <version>1.19.0</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.assertj</groupId>
+            <artifactId>assertj-core</artifactId>
+            <version>${lib.assertj.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.mock-server</groupId>
+            <artifactId>mockserver-netty</artifactId>
+            <version>5.14.0</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.kafka</groupId>
+            <artifactId>kafka-clients</artifactId>
+            <version>3.2.2</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.kafka</groupId>
+            <artifactId>kafka-streams</artifactId>
+            <version>3.2.2</version>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <finalName>${project.artifactId}</finalName>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>false</filtering>
+            </resource>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+                <includes>
+                    <include>application.version</include>
+                </includes>
+            </resource>
+        </resources>
+        <testResources>
+            <testResource>
+                <directory>src/test/resources</directory>
+                <filtering>false</filtering>
+            </testResource>
+        </testResources>
+        <plugins>
+            <plugin>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <version>3.1.0</version>
+                <executions>
+                    <execution>
+                        <id>deploy-bom</id>
+                        <phase>prepare-package</phase>
+                        <configuration>
+                            <target>
+                                <copy file="${project.build.directory}/bom.json"
+                                      tofile="${project.build.directory}/${project.artifactId}/.well-known/sbom"/>
+                            </target>
+                        </configuration>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.eclipse.jetty</groupId>
+                <artifactId>jetty-maven-plugin</artifactId>
+                <version>10.0.11</version>
+                <configuration>
+                    <webApp>
+                        <contextPath>/</contextPath>
+                    </webApp>
+                    <httpConnector>
+                        <port>8091</port>
+                    </httpConnector>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+    <profiles>
+        <profile>
+            <id>clean-exclude-wars</id>
+            <build>
+                <pluginManagement>
+                    <plugins>
+                        <plugin>
+                            <groupId>org.apache.maven.plugins</groupId>
+                            <artifactId>maven-clean-plugin</artifactId>
+                            <version>3.2.0</version>
+                            <configuration>
+                                <excludeDefaultDirectories>true</excludeDefaultDirectories>
+                                <filesets>
+                                    <fileset>
+                                        <directory>target</directory>
+                                        <followSymlinks>false</followSymlinks>
+                                        <useDefaultExcludes>false</useDefaultExcludes>
+                                        <includes>
+                                            <include>*/</include>
+                                        </includes>
+                                        <excludes>
+                                            <exclude>dependency-track*.jar</exclude>
+                                        </excludes>
+                                    </fileset>
+                                </filesets>
+                            </configuration>
+                        </plugin>
+                    </plugins>
+                </pluginManagement>
+            </build>
+        </profile>
+        <profile>
+            <id>embedded-jetty</id>
+            <activation>
+                <property>
+                    <name>env.ACTIVATE_EMBEDDED_JETTY</name>
+                    <value>true</value>
+                </property>
+            </activation>
+            <properties>
+                <war-embedded-finalname>${project.build.finalName}-foo</war-embedded-finalname>
+            </properties>
+        </profile>
+    </profiles>
+
+</project>
